@@ -48,6 +48,10 @@ class Database:
         await cls.db.messages.create_index("chat_id")
         await cls.db.messages.create_index([("chat_id", 1), ("timestamp", 1)])
         
+        # URL tracking indexes
+        await cls.db.processed_urls.create_index([("user_id", 1), ("url", 1)], unique=True)
+        await cls.db.processed_urls.create_index("user_id")
+        
         logger.info("Database indexes created successfully")
     
     @classmethod

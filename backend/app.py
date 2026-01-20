@@ -100,6 +100,11 @@ class ProcessResponse(BaseModel):
     message: str
     num_documents: int
     num_chunks: int
+    new_urls: int = 0
+    skipped_urls: int = 0
+    failed_urls: int = 0
+    skipped_url_list: List[str] = []
+    failed_url_list: List[str] = []
 
 
 class AnswerResponse(BaseModel):
@@ -201,11 +206,12 @@ async def root():
 
 @app.post("/api/process-urls", response_model=ProcessResponse)
 async def process_urls(
-    request: URLsRequest
+    request: URLsRequest,
+    current_user: UserResponse = Depends(get_current_user)
 ):
     """
-    Process news article URLs and store them in vector database.
-    Authentication is optional - chat features require authentication.
+    Process news article URLs and store them in user-specific vector database namespace.
+    Requires authentication for user data isolation.
     """
     try:
         # Validate URLs
@@ -215,25 +221,36 @@ async def process_urls(
         if len(request.urls) > 10:
             raise HTTPException(status_code=400, detail="Maximum 10 URLs allowed")
         
-        # Process URLs
-        result = preprocessing_service.process_urls(request.urls)
+        # Process URLs with user-specific deduplication
+        result = await preprocessing_service.process_urls(request.urls, str(current_user.id))
         
         if not result["success"]:
             raise HTTPException(status_code=500, detail=result.get("error", "Processing failed"))
         
-        # Store in vector database
-        storage_result = embedding_service.store_documents(result["chunks"])
+        # Store in user-specific Pinecone namespace
+        if result["chunks"]:
+            storage_result = embedding_service.store_documents(result["chunks"], str(current_user.id))
+            
+            if not storage_result["success"]:
+                raise HTTPException(status_code=500, detail=storage_result.get("error", "Storage failed"))
         
-        if not storage_result["success"]:
-            raise HTTPException(status_code=500, detail=storage_result.get("error", "Storage failed"))
-        
-        # Note: Chat integration removed - authentication required for chat features
+        # Update chat with processed URLs if chat_id provided
+        if request.chat_id:
+            # Get successfully processed URLs (new ones only)
+            successfully_processed = [url for url in request.urls if url not in result.get("failed_url_list", [])]
+            if successfully_processed:
+                await chat_service.update_chat_urls(request.chat_id, str(current_user.id), successfully_processed)
         
         return ProcessResponse(
             success=True,
-            message=f"Successfully processed and stored {result['num_documents']} articles",
+            message=result["message"],
             num_documents=result["num_documents"],
-            num_chunks=result["num_chunks"]
+            num_chunks=result["num_chunks"],
+            new_urls=result["new_urls"],
+            skipped_urls=result["skipped_urls"],
+            failed_urls=result["failed_urls"],
+            skipped_url_list=result.get("skipped_url_list", []),
+            failed_url_list=result.get("failed_url_list", [])
         )
     except HTTPException:
         raise
@@ -243,31 +260,56 @@ async def process_urls(
 
 @app.post("/api/ask", response_model=AnswerResponse)
 async def ask_question(
-    request: QuestionRequest
+    request: QuestionRequest,
+    current_user: UserResponse = Depends(get_current_user)
 ):
     """
-    Answer a question using RAG.
-    Authentication is optional - chat features require authentication.
+    Answer a question using RAG from user-specific knowledge base.
+    Requires authentication for user data isolation.
     """
     try:
         if not request.question or not request.question.strip():
             raise HTTPException(status_code=400, detail="Question cannot be empty")
         
-        # Note: Chat history saving removed - authentication required for chat features
-        
-        # Search for relevant documents
-        relevant_docs = embedding_service.search_similar(request.question, top_k=4)
+        # Search for relevant documents in user's namespace
+        relevant_docs = embedding_service.search_similar(request.question, str(current_user.id), top_k=4)
         
         # Generate answer using LLM
         answer_result = llm_service.generate_answer(request.question, relevant_docs)
         
-        # Note: Chat history saving removed - authentication required for chat features
+        # Save Q&A to chat history if chat_id is provided
+        user_message_id = None
+        ai_message_id = None
+        if request.chat_id:
+            # Save user question
+            user_message = await chat_service.save_message(
+                user_id=str(current_user.id),
+                message_data=MessageCreate(
+                    chat_id=request.chat_id,
+                    type="user",
+                    content=request.question,
+                    sources=[]
+                )
+            )
+            user_message_id = user_message.id
+            
+            # Save AI answer
+            ai_message = await chat_service.save_message(
+                user_id=str(current_user.id),
+                message_data=MessageCreate(
+                    chat_id=request.chat_id,
+                    type="ai",
+                    content=answer_result["answer"],
+                    sources=[Source(**src) for src in answer_result.get("sources", [])]
+                )
+            )
+            ai_message_id = ai_message.id
         
         return AnswerResponse(
             success=answer_result["success"],
             answer=answer_result["answer"],
             sources=[Source(**src) for src in answer_result.get("sources", [])],
-            message_id=None
+            message_id=ai_message_id
         )
     except HTTPException:
         raise
@@ -276,20 +318,41 @@ async def ask_question(
 
 
 @app.post("/api/clear-index")
-async def clear_index():
-    """Clear all documents from vector database."""
+async def clear_index(current_user: UserResponse = Depends(get_current_user)):
+    """Clear user's documents from vector database (user-specific namespace)."""
     try:
-        result = embedding_service.clear_index()
+        result = embedding_service.clear_user_namespace(str(current_user.id))
         
         if not result["success"]:
             raise HTTPException(status_code=500, detail=result.get("error", "Clear failed"))
         
         return {
             "success": True,
-            "message": "Index cleared successfully"
+            "message": "Your documents cleared successfully"
         }
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/me/urls")
+async def get_my_urls(
+    current_user: UserResponse = Depends(get_current_user),
+    limit: int = 100
+):
+    """Get current user's processed URLs."""
+    from services.url_tracking import URLTrackingService
+    
+    try:
+        url_tracker = URLTrackingService()
+        urls = await url_tracker.get_user_urls(str(current_user.id), limit=limit)
+        
+        return {
+            "success": True,
+            "urls": urls,
+            "count": len(urls)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

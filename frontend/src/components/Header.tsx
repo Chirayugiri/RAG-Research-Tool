@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Moon, Sun, Trash2 } from 'lucide-react';
+import { Moon, Sun, Trash2, LogOut } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import './Header.css';
 
 export const Header: React.FC = () => {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
-    const { clearMessages, setDocumentsProcessed } = useAppContext();
+    const { user, logout, clearMessages, setDocumentsProcessed } = useAppContext();
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -15,7 +15,7 @@ export const Header: React.FC = () => {
     };
 
     const handleClearIndex = async () => {
-        if (!confirm('Are you sure you want to clear all documents?')) {
+        if (!confirm('Are you sure you want to clear your documents? This will remove all processed articles from your knowledge base.')) {
             return;
         }
 
@@ -23,10 +23,16 @@ export const Header: React.FC = () => {
             await apiService.clearIndex();
             clearMessages();
             setDocumentsProcessed(false);
-            alert('Index cleared successfully!');
+            alert('Your documents have been cleared successfully!');
         } catch (error) {
-            alert('Failed to clear index');
+            alert('Failed to clear documents');
             console.error(error);
+        }
+    };
+
+    const handleLogout = () => {
+        if (confirm('Are you sure you want to logout?')) {
+            logout();
         }
     };
 
@@ -41,10 +47,14 @@ export const Header: React.FC = () => {
                 </div>
 
                 <div className="header-right">
+                    <div className="user-info">
+                        <span className="username">{user?.username}</span>
+                    </div>
+
                     <button
                         className="icon-btn"
                         onClick={handleClearIndex}
-                        title="Clear Index"
+                        title="Clear My Documents"
                     >
                         <Trash2 size={20} />
                     </button>
@@ -56,8 +66,17 @@ export const Header: React.FC = () => {
                     >
                         {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
+
+                    <button
+                        className="icon-btn logout-btn"
+                        onClick={handleLogout}
+                        title="Logout"
+                    >
+                        <LogOut size={20} />
+                    </button>
                 </div>
             </div>
         </header>
     );
 };
+

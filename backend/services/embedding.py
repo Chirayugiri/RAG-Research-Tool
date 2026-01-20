@@ -94,12 +94,13 @@ class EmbeddingService:
         except Exception as e:
             raise Exception(f"Failed to generate embedding: {str(e)}")
     
-    def store_documents(self, chunks: List[Any]) -> Dict[str, Any]:
+    def store_documents(self, chunks: List[Any], user_id: str) -> Dict[str, Any]:
         """
-        Store document chunks in Pinecone.
+        Store document chunks in Pinecone with user-specific namespace.
         
         Args:
             chunks: List of document chunks from LangChain
+            user_id: User ID for namespace isolation
             
         Returns:
             Dictionary with storage status
@@ -128,12 +129,12 @@ class EmbeddingService:
                 
                 # Batch upsert every 50 vectors
                 if len(vectors) >= 50:
-                    self.index.upsert(vectors=vectors)
+                    self.index.upsert(vectors=vectors, namespace=f"user_{user_id}")
                     vectors = []
             
             # Upsert remaining vectors
             if vectors:
-                self.index.upsert(vectors=vectors)
+                self.index.upsert(vectors=vectors, namespace=f"user_{user_id}")
             
             return {
                 "success": True,
@@ -147,12 +148,13 @@ class EmbeddingService:
                 "error": str(e)
             }
     
-    def search_similar(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
+    def search_similar(self, query: str, user_id: str, top_k: int = 4) -> List[Dict[str, Any]]:
         """
-        Search for similar documents.
+        Search for similar documents in user-specific namespace.
         
         Args:
             query: Search query
+            user_id: User ID for namespace isolation
             top_k: Number of results to return
             
         Returns:
@@ -162,11 +164,12 @@ class EmbeddingService:
             # Generate query embedding
             query_embedding = self.generate_embedding(query)
             
-            # Search in Pinecone
+            # Search in Pinecone with user namespace
             results = self.index.query(
                 vector=query_embedding,
                 top_k=top_k,
-                include_metadata=True
+                include_metadata=True,
+                namespace=f"user_{user_id}"
             )
             
             # Format results
@@ -200,3 +203,27 @@ class EmbeddingService:
                 "success": False,
                 "error": str(e)
             }
+    
+    def clear_user_namespace(self, user_id: str) -> Dict[str, Any]:
+        """
+        Clear all vectors from a specific user's namespace.
+        
+        Args:
+            user_id: User ID whose namespace to clear
+            
+        Returns:
+            Dictionary with clear status
+        """
+        try:
+            namespace = f"user_{user_id}"
+            self.index.delete(delete_all=True, namespace=namespace)
+            return {
+                "success": True,
+                "message": f"User namespace {namespace} cleared successfully"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+

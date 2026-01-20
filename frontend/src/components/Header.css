@@ -45,6 +45,22 @@
     gap: var(--spacing-sm);
 }
 
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--secondary-bg);
+    border-radius: var(--radius-full);
+    margin-right: var(--spacing-sm);
+}
+
+.username {
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
 .icon-btn {
     background: transparent;
     border: none;
@@ -63,6 +79,11 @@
     color: var(--text-primary);
 }
 
+.logout-btn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
 @media (max-width: 768px) {
     .header {
         padding: var(--spacing-sm) var(--spacing-md);
@@ -70,5 +91,16 @@
 
     .logo-text {
         font-size: var(--font-size-lg);
+    }
+
+    .user-info {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .username {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
