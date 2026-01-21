@@ -1,0 +1,276 @@
+.url-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.url-dialog-content {
+    width: 100%;
+    max-width: 500px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.url-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon-box {
+    width: 40px;
+    height: 40px;
+    background: rgba(138, 180, 248, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8ab4f8;
+}
+
+.url-dialog-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+}
+
+.subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.url-dialog-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Reuse existing glass input styles or redefine for isolation */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    transition: all 0.3s ease;
+}
+
+.input-wrapper:focus-within {
+    border-color: rgba(138, 180, 248, 0.5);
+    box-shadow: 0 0 0 4px rgba(138, 180, 248, 0.1);
+}
+
+.glass-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 12px;
+    font-size: 0.95rem;
+}
+
+.add-btn {
+    background: rgba(138, 180, 248, 0.1);
+    border: none;
+    color: #8ab4f8;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 2px;
+}
+
+.add-btn:hover:not(:disabled) {
+    background: #8ab4f8;
+    color: #1e1e1e;
+}
+
+.add-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.input-status {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    padding-right: 4px;
+}
+
+.url-list-scroll {
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.empty-state-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-tertiary);
+    gap: 12px;
+}
+
+.empty-icon-dialog {
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.url-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.url-card:last-child {
+    margin-bottom: 0;
+}
+
+.url-icon {
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: #4caf50;
+    border-radius: 50%;
+}
+
+.url-text {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--error);
+    opacity: 0.5;
+    cursor: pointer;
+    padding: 4px;
+    transition: opacity 0.2s;
+}
+
+.card-remove-btn:hover {
+    opacity: 1;
+}
+
+.url-dialog-footer {
+    padding: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.process-btn-glow {
+    width: 100%;
+    background: linear-gradient(135deg, #8ab4f8, #c58af9);
+    color: #1e1e1e;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.process-btn-glow:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(138, 180, 248, 0.4);
+}
+
+.process-btn-glow:disabled {
+    filter: grayscale(1);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
