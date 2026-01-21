@@ -1,11 +1,11 @@
 .header {
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: #1a1b1e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 14px 28px;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -25,39 +25,60 @@
 .logo {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 12px;
 }
 
 .logo-icon {
-    font-size: 1.75rem;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #8ab4f8 0%, #c58af9 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    transition: all 0.2s ease;
+}
+
+.logo-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(138, 180, 248, 0.3);
 }
 
 .logo-text {
-    font-size: var(--font-size-xl);
-    font-weight: 500;
+    font-size: 1.15rem;
+    font-weight: 600;
     color: var(--text-primary);
     margin: 0;
+    font-family: var(--font-body);
 }
 
 .header-right {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 8px;
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-md);
-    background: var(--secondary-bg);
-    border-radius: var(--radius-full);
-    margin-right: var(--spacing-sm);
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    margin-right: 8px;
+    transition: all 0.2s ease;
+}
+
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(138, 180, 248, 0.3);
 }
 
 .username {
     color: var(--text-primary);
-    font-size: var(--font-size-sm);
+    font-size: 0.9rem;
     font-weight: 500;
 }
 
@@ -65,23 +86,24 @@
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-sm);
+    padding: 10px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: all 0.2s ease;
 }
 
 .icon-btn:hover {
-    background-color: var(--secondary-bg);
+    background-color: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
+    transform: translateY(-1px);
 }
 
 .logout-btn:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background-color: rgba(242, 139, 130, 0.15);
+    color: #f28b82;
 }
 
 @media (max-width: 768px) {

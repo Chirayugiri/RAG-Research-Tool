@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Moon, Sun, Trash2, LogOut } from 'lucide-react';
+import { Moon, Sun, Trash2, LogOut, Sparkles } from 'lucide-react';
 import { apiService } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import './Header.css';
@@ -41,8 +41,10 @@ export const Header: React.FC = () => {
             <div className="header-content">
                 <div className="header-left">
                     <div className="logo">
-                        <span className="logo-icon">📰</span>
-                        <h1 className="logo-text">RAG News Research</h1>
+                        <div className="logo-icon">
+                            <Sparkles size={22} strokeWidth={2.5} />
+                        </div>
+                        <h1 className="logo-text">Research Bot</h1>
                     </div>
                 </div>
 

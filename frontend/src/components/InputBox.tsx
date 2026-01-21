@@ -89,9 +89,6 @@ export const InputBox: React.FC = () => {
                     <Send size={20} />
                 </button>
             </form>
-            <p className="input-hint">
-                Press Enter to send, Shift + Enter for new line
-            </p>
         </div>
     );
 };

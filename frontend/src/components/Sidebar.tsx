@@ -164,8 +164,8 @@ export const Sidebar: React.FC = () => {
         <>
             <aside className="perplexity-sidebar">
                 <div className="sidebar-top">
-                    <div className="sidebar-logo">
-                        <Sparkles size={24} strokeWidth={2} />
+                    <div className="sidebar-logo" title="New Research">
+                        <Plus size={26} strokeWidth={2.5} />
                     </div>
 
                     <nav className="sidebar-nav">
